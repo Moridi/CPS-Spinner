@@ -10,22 +10,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ImageView;
+import android.view.Display;
+import android.graphics.Point;
+import android.view.WindowManager;
 
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
 
     private Button gravityActivityButton;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         gravityActivityButton = (Button) findViewById(R.id.gravityActivity);
     }

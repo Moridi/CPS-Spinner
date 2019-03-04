@@ -20,6 +20,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.795" />
 
+
     <TextView
         android:id="@+id/gyroscopeY"
         android:layout_width="wrap_content"
@@ -103,6 +104,16 @@
             android:paddingLeft="10dp"
             android:text="Score : 300"
             android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/startLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tap to Start :D"
+            android:textSize="30sp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="130dp"/>
+
 
         <ImageView
             android:id="@+id/black"

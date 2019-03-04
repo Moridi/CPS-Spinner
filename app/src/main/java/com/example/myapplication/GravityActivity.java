@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.graphics.Color;
+import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -8,6 +9,8 @@ import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,6 +20,7 @@ import java.util.Objects;
 public class GravityActivity extends AppCompatActivity {
 
     private TextView scoreLabel;
+    private TextView startLabel;
 
     private ImageView black;
 
@@ -24,6 +28,9 @@ public class GravityActivity extends AppCompatActivity {
     private int blackY;
 
     private int blackSpeed;
+
+    private int screenWidth;
+    private int screenHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +46,18 @@ public class GravityActivity extends AppCompatActivity {
 
         scoreLabel = (TextView) findViewById(R.id.scoreLabel);
 
-        black.setX(150);
-        black.setY(150);
+
+        // Get screen size.
+        WindowManager wm = getWindowManager();
+        Display disp = wm.getDefaultDisplay();
+        Point size = new Point();
+        disp.getSize(size);
+
+        screenWidth = size.x;
+        screenHeight = size.y;
+
+        black.setX(screenWidth >> 1);
+        black.setY(screenHeight >> 1);
 
 //        setupProximitySensor(sensorManager);
 //        setupRotationVectorSensor(sensorManager);

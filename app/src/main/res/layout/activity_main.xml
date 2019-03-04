@@ -8,9 +8,9 @@
 
     <Button
         android:id="@+id/gravityActivity"
-        android:onClick="switchToGravityActivity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="switchToGravityActivity"
         android:text="Gravity Sensor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
