@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -8,6 +9,8 @@ import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.ImageView;
 
@@ -28,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
     private int blackSpeed;
 
+    private Button gravityActivityButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         setupGyroscopeSensor(sensorManager);
         setupGravitySensor(sensorManager);
+
+        gravityActivityButton = (Button) findViewById(R.id.gravityActivity);
 
         black = (ImageView) findViewById(R.id.black);
         blackSpeed = Math.round(768 / 45); // 768 / 45 = 17.06... => 17
@@ -49,6 +56,12 @@ public class MainActivity extends AppCompatActivity {
 //        setupRotationVectorSensor(sensorManager);
 
         scoreLabel.setText("Score : 0");
+    }
+
+    /** Called when the user taps the gravity button*/
+    public void switchToGravityActivity(View view) {
+        Intent intent = new Intent(this, GravityActivity.class);
+        startActivity(intent);
     }
 
     private void setupRotationVectorSensor(SensorManager sensorManager) {
