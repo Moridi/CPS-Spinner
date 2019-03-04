@@ -8,6 +8,7 @@ import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -21,10 +22,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-
-        setupProximitySensor(sensorManager);
         setupGyroscopeSensor(sensorManager);
-        setupRotationVectorSensor(sensorManager);
+        setupGravitySensor(sensorManager);
+
+//        setupProximitySensor(sensorManager);
+//        setupRotationVectorSensor(sensorManager);
+
 
     }
 
@@ -73,6 +76,32 @@ public class MainActivity extends AppCompatActivity {
                 rotationVectorSensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
+    private void setupGravitySensor(SensorManager sensorManager) {
+        Sensor gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+
+        // Create a listener
+        SensorEventListener rvListener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent sensorEvent) {
+                TextView gravityX = findViewById(R.id.gravityX);
+                gravityX.setText(String.valueOf(sensorEvent.values[0]));
+
+                TextView gravityY = findViewById(R.id.gravityY);
+                gravityY.setText(String.valueOf(sensorEvent.values[1]));
+
+                TextView gravityZ = findViewById(R.id.gravityZ);
+                gravityZ.setText(String.valueOf(sensorEvent.values[2]));
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int i) {
+            }
+        };
+
+        // Register it
+        sensorManager.registerListener(rvListener, gravitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
     private void setupGyroscopeSensor(SensorManager sensorManager) {
         Sensor gyroscopeSensor =
                 sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -81,11 +110,12 @@ public class MainActivity extends AppCompatActivity {
         SensorEventListener gyroscopeSensorListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
-                if (sensorEvent.values[2] > 0.5f) { // anticlockwise
-                    getWindow().getDecorView().setBackgroundColor(Color.BLUE);
-                } else if (sensorEvent.values[2] < -0.5f) { // clockwise
-                    getWindow().getDecorView().setBackgroundColor(Color.YELLOW);
-                }
+                TextView gyroscopeX = findViewById(R.id.gyroscopeX);
+                gyroscopeX.setText(String.valueOf(sensorEvent.values[0]));
+                TextView gyroscopeY = findViewById(R.id.gyroscopeY);
+                gyroscopeY.setText(String.valueOf(sensorEvent.values[1]));
+                TextView gyroscopeZ = findViewById(R.id.gyroscopeZ);
+                gyroscopeZ.setText(String.valueOf(sensorEvent.values[2]));
             }
 
             @Override
