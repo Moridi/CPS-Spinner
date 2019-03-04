@@ -8,11 +8,14 @@ import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.ImageView;
+import android.view.Display;
+import android.graphics.Point;
+import android.view.WindowManager;
 
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 //    private int screenHeight;
 
     private TextView scoreLabel;
+    private TextView startLabel;
 
     private ImageView black;
 
@@ -27,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
     private int blackY;
 
     private int blackSpeed;
+
+    private int screenWidth;
+    private int screenHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,13 +44,24 @@ public class MainActivity extends AppCompatActivity {
         setupGyroscopeSensor(sensorManager);
         setupGravitySensor(sensorManager);
 
+        // Get screen size.
+        WindowManager wm = getWindowManager();
+        Display disp = wm.getDefaultDisplay();
+        Point size = new Point();
+        disp.getSize(size);
+
+        screenWidth = size.x;
+        screenHeight = size.y;
+
         black = (ImageView) findViewById(R.id.black);
-        blackSpeed = Math.round(768 / 45); // 768 / 45 = 17.06... => 17
+//        blackSpeed = Math.round(768 / 45); // 768 / 45 = 17.06... => 17
 
         scoreLabel = (TextView) findViewById(R.id.scoreLabel);
 
-        black.setX(150);
-        black.setY(150);
+        black.setX(screenWidth / 2);
+        black.setY(screenHeight / 2);
+
+//        startLabel.setVisibility(View.INVISIBLE);
 
 //        setupProximitySensor(sensorManager);
 //        setupRotationVectorSensor(sensorManager);

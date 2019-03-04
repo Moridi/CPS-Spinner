@@ -96,6 +96,16 @@
         android:layout_height="match_parent">
 
         <TextView
+            android:id="@+id/startLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tap to Start"
+            android:textSize="30sp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="130dp"/>
+
+
+        <TextView
             android:id="@+id/scoreLabel"
             android:layout_width="match_parent"
             android:layout_height="50dp"
