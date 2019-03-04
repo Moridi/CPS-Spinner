@@ -9,12 +9,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.ImageView;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
+//    private int screenWidth;
+//    private int screenHeight;
+
+    private TextView scoreLabel;
+
+    private ImageView black;
+
+    private int blackX;
+    private int blackY;
+
+    private int blackSpeed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,10 +37,18 @@ public class MainActivity extends AppCompatActivity {
         setupGyroscopeSensor(sensorManager);
         setupGravitySensor(sensorManager);
 
+        black = (ImageView) findViewById(R.id.black);
+        blackSpeed = Math.round(768 / 45); // 768 / 45 = 17.06... => 17
+
+        scoreLabel = (TextView) findViewById(R.id.scoreLabel);
+
+        black.setX(150);
+        black.setY(150);
+
 //        setupProximitySensor(sensorManager);
 //        setupRotationVectorSensor(sensorManager);
 
-
+        scoreLabel.setText("Score : 0");
     }
 
     private void setupRotationVectorSensor(SensorManager sensorManager) {
