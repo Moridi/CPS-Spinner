@@ -23,16 +23,12 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
 
 
-    private Button gravityActivityButton;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-        gravityActivityButton = (Button) findViewById(R.id.gravityActivity);
     }
 
     /**
@@ -40,6 +36,11 @@ public class MainActivity extends AppCompatActivity {
      */
     public void switchToGravityActivity(View view) {
         Intent intent = new Intent(this, GravityActivity.class);
+        startActivity(intent);
+
+    }
+    public void switchToCanvasActivity(View view) {
+        Intent intent = new Intent(this, CanvasTest.class);
         startActivity(intent);
     }
 
