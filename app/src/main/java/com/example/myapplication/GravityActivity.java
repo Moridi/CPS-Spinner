@@ -12,16 +12,11 @@ import android.widget.TextView;
 import java.util.Locale;
 
 public class GravityActivity extends AppCompatActivity {
+    public static final double DAMPING_COEFFICIENT = .5;
     private final static double TIME_SLICE_SECONDS = .02;
 
-    private int layoutRight;
-    private int layoutBottom;
-
-    private int movingObjectWidth;
-    private int movingObjectHeight;
-
-    private int rightestPosition;
-    private int bottommostPosition;
+    private int RIGHTEST_POSITION;
+    private int BOTTOMMOST_POSITION;
 
     private float x;
     private float y;
@@ -29,25 +24,50 @@ public class GravityActivity extends AppCompatActivity {
     private double vx = 0;
     private double vy = 0;
 
+    private double fx;
+    private double fy;
+
+    private double MASS = 0.01;
+
+    private double MU_S = .15;
+    private double MU_K = .1;
+
     private boolean gameStarted = false;
     private View movingObject;
 
+    public void screenClick(View view) {
+        if (gameStarted) {
+            this.x = movingObject.getX();
+            this.y = movingObject.getY();
+
+            findViewById(R.id.pauseBanner).setVisibility(View.VISIBLE);
+
+            gameStarted = false;
+        } else
+            resume();
+    }
+
     public void ballClicked(View view) {
+        resume();
+    }
+
+    private void resume() {
         View layout = findViewById(R.id.layout);
-        this.layoutRight = layout.getRight();
-        this.layoutBottom = layout.getBottom();
+        int layoutRight = layout.getRight();
+        int layoutBottom = layout.getBottom();
 
         this.movingObject = findViewById(R.id.movingObject);
-        this.movingObjectWidth = movingObject.getWidth();
-        this.movingObjectHeight = movingObject.getHeight();
+        int movingObjectWidth = movingObject.getWidth();
+        int movingObjectHeight = movingObject.getHeight();
 
-        this.rightestPosition = layoutRight - movingObjectWidth;
-        this.bottommostPosition = layoutBottom - movingObjectHeight;
+        this.RIGHTEST_POSITION = layoutRight - movingObjectWidth;
+        this.BOTTOMMOST_POSITION = layoutBottom - movingObjectHeight;
 
         this.x = movingObject.getX();
         this.y = movingObject.getY();
 
         gameStarted = true;
+        findViewById(R.id.pauseBanner).setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -66,16 +86,22 @@ public class GravityActivity extends AppCompatActivity {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
                 double gravityX = sensorEvent.values[0];
+                gravityX = -gravityX;
                 double gravityY = sensorEvent.values[1];
                 double gravityZ = sensorEvent.values[2];
 
                 TextView sensorStatus = findViewById(R.id.gravitySensorStatus);
-                String sensorOutputs = String.format(Locale.ENGLISH, "gravity_x: %.4f\ngravity_y: %.4f\ngravity_z: %.4f\nx: %.4f\ny: %.4f\nvx: %.4f\nvy: %.4f\n", gravityX, gravityY, gravityZ, x, y, vx, vy);
+                String sensorOutputs = getSensorStatus(gravityX, gravityY, gravityZ);
                 sensorStatus.setText(sensorOutputs);
 
                 if (gameStarted) {
-                    int scale = 200;
-                    moveObject(-gravityX * scale, gravityY * scale);
+                    fx = vx == 0 ? gravityX - (gravityZ * MU_S) : gravityX - (gravityZ * MU_K);
+                    double ax = fx / MASS;
+
+                    fy = vy == 0 ? gravityY - (gravityZ * MU_S) : gravityY - (gravityZ * MU_K);
+                    double ay = fy / MASS;
+
+                    moveObject(ax, ay);
                 }
             }
 
@@ -87,16 +113,20 @@ public class GravityActivity extends AppCompatActivity {
         sensorManager.registerListener(rvListener, gravitySensor, SensorManager.SENSOR_DELAY_GAME);
     }
 
+    private String getSensorStatus(double gravityX, double gravityY, double gravityZ) {
+        return String.format(Locale.ENGLISH, "gravity_x: %.4f\ngravity_y: %.4f\ngravity_z: %.4f\nx: %.4f\ny: %.4f\nvx: %.4f\nvy: %.4f\n", gravityX, gravityY, gravityZ, x, y, vx, vy);
+    }
+
     public void moveObject(double ax, double ay) {
-        double newX = (1 / 2F) * ax * Math.pow(TIME_SLICE_SECONDS, 2) + vx * TIME_SLICE_SECONDS + x;
-        double newY = (1 / 2F) * ay * Math.pow(TIME_SLICE_SECONDS, 2) + vy * TIME_SLICE_SECONDS + y;
-        x = (newX >= rightestPosition) ? rightestPosition : (float) ((newX <= 0) ? 0 : newX);
-        y = (newY >= bottommostPosition) ? bottommostPosition : (float) ((newY <= 0) ? 0 : newY);
+        double newX = (0.5) * ax * Math.pow(TIME_SLICE_SECONDS, 2) + vx * TIME_SLICE_SECONDS + x;
+        double newY = (0.5) * ay * Math.pow(TIME_SLICE_SECONDS, 2) + vy * TIME_SLICE_SECONDS + y;
+        x = (newX >= RIGHTEST_POSITION) ? RIGHTEST_POSITION : (float) ((newX <= 0) ? 0 : newX);
+        y = (newY >= BOTTOMMOST_POSITION) ? BOTTOMMOST_POSITION : (float) ((newY <= 0) ? 0 : newY);
 
         double newVX = ax * TIME_SLICE_SECONDS + vx;
         double newVY = ay * TIME_SLICE_SECONDS + vy;
-        vx = (newX >= rightestPosition || newX <= 0) ? 0 : newVX;
-        vy = (newY >= bottommostPosition || newY <= 0) ? 0 : newVY;
+        vx = (newX >= RIGHTEST_POSITION || newX <= 0) ? -newVX * DAMPING_COEFFICIENT : newVX;
+        vy = (newY >= BOTTOMMOST_POSITION || newY <= 0) ? -newVY * DAMPING_COEFFICIENT : newVY;
 
         setPosition(newX, newY);
     }
