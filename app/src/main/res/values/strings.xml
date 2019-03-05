@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">CPS Computer Assignment 3</string>
+    <string name="gravity_button_text">Gravity</string>
+    <string name="gyroscope_button_text">Gyroscope</string>
+    <string name="gyroscope_sensor_page_title">Gyroscope Sensor</string>
+    <string name="gravity_sensor_page_title">Gravity Sensor</string>
 </resources>
