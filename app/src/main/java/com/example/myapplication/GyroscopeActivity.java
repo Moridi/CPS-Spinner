@@ -1,11 +1,13 @@
 package com.example.myapplication;
 
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
 import android.widget.TextView;
 
 import java.util.Locale;
@@ -31,9 +33,16 @@ public class GyroscopeActivity extends AppCompatActivity {
         SensorEventListener gyroscopeSensorListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
-                float gyroscopeX = sensorEvent.values[0];
-                float gyroscopeY = sensorEvent.values[1];
-                float gyroscopeZ = sensorEvent.values[2];
+                // In case of anticlockwise rotation, it will be positive.
+                float gyroscopeX = sensorEvent.values[0]; // angular velocity along the X (rad / s)
+                float gyroscopeY = sensorEvent.values[1]; // Y
+                float gyroscopeZ = sensorEvent.values[2]; // Z
+
+                if(sensorEvent.values[2] > 0.5f) { // anticlockwise
+                    getWindow().getDecorView().setBackgroundColor(Color.BLUE);
+                } else if(sensorEvent.values[2] < -0.5f) { // clockwise
+                    getWindow().getDecorView().setBackgroundColor(Color.YELLOW);
+                }
 
                 TextView sensorStatus = findViewById(R.id.gyroscopeSensorStatus);
                 String sensorOutputs = String.format(Locale.ENGLISH, "x: %.4f\ny: %.4f\nz: %.4f\n", gyroscopeX, gyroscopeY, gyroscopeZ);
