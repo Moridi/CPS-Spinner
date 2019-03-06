@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import android.content.Intent;
+import android.graphics.MaskFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -8,6 +10,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
+
+import com.example.myapplication.R;
 
 import java.util.Locale;
 
@@ -32,6 +36,13 @@ public class GravityActivity extends AppCompatActivity {
     private double MU_S = .15;
     private double MU_K = .1;
 
+    private float timestamp = 1;
+    private float readSensorTimestamp = 1;
+    private float refreshViewTimestamp = 1;
+    private static final float NS2US = 1.0f / 1000.0f;
+    private final int readSensorRate = 20; // sensor read rate in microsecond
+    private final int updateViewRate = 20 * 1000; // sensor read rate in microsecond
+
     private boolean gameStarted = false;
     private View movingObject;
 
@@ -47,6 +58,16 @@ public class GravityActivity extends AppCompatActivity {
             resume();
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_gravity);
+        this.movingObject = findViewById(R.id.movingObject);
+
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        setupGravitySensor(sensorManager);
+    }
+
     public void ballClicked(View view) {
         resume();
     }
@@ -56,7 +77,6 @@ public class GravityActivity extends AppCompatActivity {
         int layoutRight = layout.getRight();
         int layoutBottom = layout.getBottom();
 
-        this.movingObject = findViewById(R.id.movingObject);
         int movingObjectWidth = movingObject.getWidth();
         int movingObjectHeight = movingObject.getHeight();
 
@@ -70,14 +90,6 @@ public class GravityActivity extends AppCompatActivity {
         findViewById(R.id.pauseBanner).setVisibility(View.INVISIBLE);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gravity);
-
-        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        setupGravitySensor(sensorManager);
-    }
 
     private void setupGravitySensor(SensorManager sensorManager) {
         Sensor gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
@@ -85,23 +97,43 @@ public class GravityActivity extends AppCompatActivity {
         SensorEventListener rvListener = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
-                double gravityX = sensorEvent.values[0];
-                gravityX = -gravityX;
-                double gravityY = sensorEvent.values[1];
-                double gravityZ = sensorEvent.values[2];
+                if (timestamp != 0) {
+                    float dT = (sensorEvent.timestamp - readSensorTimestamp) * NS2US;
+                    if (dT > readSensorRate) {
+                        double gravityX = sensorEvent.values[0];
+                        gravityX = -gravityX;
+                        double gravityY = sensorEvent.values[1];
+                        double gravityZ = sensorEvent.values[2];
 
-                TextView sensorStatus = findViewById(R.id.gravitySensorStatus);
-                String sensorOutputs = getSensorStatus(gravityX, gravityY, gravityZ);
-                sensorStatus.setText(sensorOutputs);
+                        if (gameStarted) {
+                            fx = vx == 0 ? gravityX - (gravityZ * MU_S) : gravityX - (gravityZ * MU_K);
+                            fy = vy == 0 ? gravityY - (gravityZ * MU_S) : gravityY - (gravityZ * MU_K);
 
-                if (gameStarted) {
-                    fx = vx == 0 ? gravityX - (gravityZ * MU_S) : gravityX - (gravityZ * MU_K);
-                    double ax = fx / MASS;
+                            double ax = fx / MASS;
+                            double ay = fy / MASS;
 
-                    fy = vy == 0 ? gravityY - (gravityZ * MU_S) : gravityY - (gravityZ * MU_K);
-                    double ay = fy / MASS;
+                            double newX = (0.5) * ax * Math.pow(TIME_SLICE_SECONDS, 2) + vx * TIME_SLICE_SECONDS + x;
+                            double newY = (0.5) * ay * Math.pow(TIME_SLICE_SECONDS, 2) + vy * TIME_SLICE_SECONDS + y;
+                            x = (newX >= RIGHTEST_POSITION) ? RIGHTEST_POSITION : (float) ((newX <= 0) ? 0 : newX);
+                            y = (newY >= BOTTOMMOST_POSITION) ? BOTTOMMOST_POSITION : (float) ((newY <= 0) ? 0 : newY);
 
-                    moveObject(ax, ay);
+                            double newVX = ax * TIME_SLICE_SECONDS + vx;
+                            double newVY = ay * TIME_SLICE_SECONDS + vy;
+                            vx = (newX >= RIGHTEST_POSITION || newX <= 0) ? -newVX * DAMPING_COEFFICIENT : newVX;
+                            vy = (newY >= BOTTOMMOST_POSITION || newY <= 0) ? -newVY * DAMPING_COEFFICIENT : newVY;
+                            readSensorTimestamp = sensorEvent.timestamp;
+                        }
+                    }
+                    dT = (sensorEvent.timestamp - refreshViewTimestamp) * NS2US;
+                    if (dT > updateViewRate && gameStarted) {
+                        moveObject();
+                        TextView sensorStatus = findViewById(R.id.gravitySensorStatus);
+                        String sensorOutputs = getSensorStatus(sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2]);
+                        sensorStatus.setText(sensorOutputs);
+                        refreshViewTimestamp = sensorEvent.timestamp;
+                    }
+
+                    timestamp = sensorEvent.timestamp;
                 }
             }
 
@@ -117,18 +149,8 @@ public class GravityActivity extends AppCompatActivity {
         return String.format(Locale.ENGLISH, "gravity_x: %.4f\ngravity_y: %.4f\ngravity_z: %.4f\nx: %.4f\ny: %.4f\nvx: %.4f\nvy: %.4f\n", gravityX, gravityY, gravityZ, x, y, vx, vy);
     }
 
-    public void moveObject(double ax, double ay) {
-        double newX = (0.5) * ax * Math.pow(TIME_SLICE_SECONDS, 2) + vx * TIME_SLICE_SECONDS + x;
-        double newY = (0.5) * ay * Math.pow(TIME_SLICE_SECONDS, 2) + vy * TIME_SLICE_SECONDS + y;
-        x = (newX >= RIGHTEST_POSITION) ? RIGHTEST_POSITION : (float) ((newX <= 0) ? 0 : newX);
-        y = (newY >= BOTTOMMOST_POSITION) ? BOTTOMMOST_POSITION : (float) ((newY <= 0) ? 0 : newY);
-
-        double newVX = ax * TIME_SLICE_SECONDS + vx;
-        double newVY = ay * TIME_SLICE_SECONDS + vy;
-        vx = (newX >= RIGHTEST_POSITION || newX <= 0) ? -newVX * DAMPING_COEFFICIENT : newVX;
-        vy = (newY >= BOTTOMMOST_POSITION || newY <= 0) ? -newVY * DAMPING_COEFFICIENT : newVY;
-
-        setPosition(newX, newY);
+    public void moveObject() {
+        setPosition(x, y);
     }
 
     private void setPosition(double newX, double newY) {
