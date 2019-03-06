@@ -4,4 +4,6 @@
     <string name="gyroscope_button_text">Gyroscope</string>
     <string name="gyroscope_sensor_page_title">Gyroscope Sensor</string>
     <string name="gravity_sensor_page_title">Gravity Sensor</string>
+    <string name="pause_alert_text">PAUSE</string>
+    <string name="moving_ball_image_description">moving_ball</string>
 </resources>
