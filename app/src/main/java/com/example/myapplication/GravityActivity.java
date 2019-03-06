@@ -39,9 +39,9 @@ public class GravityActivity extends AppCompatActivity {
     private float timestamp = 1;
     private float readSensorTimestamp = 1;
     private float refreshViewTimestamp = 1;
-    private static final float NS2US = 1.0f / 1000.0f;
+    private static final float NS2US = 1.0f / 1000.0f; // ns to microsecond
     private final int readSensorRate = 20; // sensor read rate in microsecond
-    private final int updateViewRate = 20 * 1000; // sensor read rate in microsecond
+    private final int updateViewRate = 15 * 1000; // refresh View rate in microsecond
 
     private boolean gameStarted = false;
     private View movingObject;
