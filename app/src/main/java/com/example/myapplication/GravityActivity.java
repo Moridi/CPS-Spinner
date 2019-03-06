@@ -24,7 +24,7 @@ public class GravityActivity extends AppCompatActivity {
     private double fx;
     private double fy;
 
-    private double MASS = 0.01;
+    private double MASS = 0.05;
 
     private double MU_S = .15;
     private double MU_K = .1;
@@ -102,8 +102,8 @@ public class GravityActivity extends AppCompatActivity {
 
                     if (gameStarted) {
                         final double time_slice = dT * US2S;
-                        fx = vx == 0 ? gravityX - (gravityZ * MU_S) : gravityX - (gravityZ * MU_K);
-                        fy = vy == 0 ? gravityY - (gravityZ * MU_S) : gravityY - (gravityZ * MU_K);
+                        fx = vx == 0 ? (gravityX - (gravityZ * MU_S)) : (gravityX - (gravityZ * MU_K));
+                        fy = vy == 0 ? (gravityY - (gravityZ * MU_S)) : (gravityY - (gravityZ * MU_K));
 
                         double ax = fx / MASS;
                         double ay = fy / MASS;
